@@ -1,0 +1,111 @@
+
+<script>
+(function(data){
+  
+  document.addEventListener("DOMContentLoaded", function(event) { 
+       
+      buildRankingsChart();
+
+  });
+
+  function buildRankingsChart(){
+
+    <% if(typeof rankingsData == 'object') { %>
+        lineChartData = {};  
+        lineChartData.labels = []; // 'labels' element to object (X axis)
+        lineChartData.datasets = []; // 'datasets' array element to object
+
+        for (line = 0; line < 4; line++) {
+            y = [];
+            lineChartData.datasets.push({}); //create a new line dataset
+            dataset = lineChartData.datasets[line]
+            dataset.fillColor = "rgba(0,0,0,0)";
+            dataset.strokeColor = "rgba(200,200,200,1)";
+            dataset.data = []; //contains the 'Y; axis data
+
+
+            <% _.each(rankingsData, function (ranking) { %>
+
+           
+
+            <% }) %>
+      
+            for (x = 0; x < 10; x++) {
+                y.push(line + x);  
+                if (line === 0)
+                    lineChartData.labels.push(x);  
+            }  
+
+            lineChartData.datasets[line].data = y;  
+        }  
+
+        ctx = document.getElementById("rankings-chart").getContext("2d");
+        myLineChart = new Chart(ctx).Line(lineChartData);
+    }
+  <% } %>
+})();
+
+</script>
+
+<div class="container">
+  
+  <h3>STAT Rankings</h3>
+
+  <hr/>
+
+  <h5>Load CSV Data</h5>
+  <form action="<%=sails.getBaseUrl()%>/rankings/upload" method="post" enctype="multipart/form-data">
+    <div class="row">
+      <div class="four columns">
+        <input type="file" name="uploadStatData" id="uploadStatData" accept=".csv"  required/> <!-- Only accept *.csv files -->
+      </div>
+      <div class="two columns"> 
+        <input type="submit" value="Load Data" />
+      </div>
+    </div>
+  </form> 
+  <div class="row" id="csv-loaded-msg">
+    <div class="four columns">
+      <% if(typeof csvLoadedMsg == 'object') { %>
+        <%= csvLoadedMsg %>
+      <% } %>
+    </div>
+  </div>
+
+  <hr/>
+
+  <h5>Visualize Rankings</h5>
+  <form action="<%=sails.getBaseUrl()%>/rankings/findRankingsForDates" method="get">
+    <div class="row"> 
+      <div class="four columns">
+        <label for="fromDate">From Date ('yyyy-mm-dd')</label>
+        <input type="text" name="fromDate" id="fromDate" required/>
+      </div>
+      <div class="four columns">
+        <label for="toDate">To Date('yyyy-mm-dd')</label>
+         <input type="text" name="toDate" id="toDate" required/> 
+      </div>
+    </div>
+    <div class="row">
+      <div class="six columns">
+          <input type="submit" value="Update View" /> 
+      </div>
+    </div>
+  </form>
+  <div class="row">
+
+    <div class="one-half column">
+        <h5>Rankings</h5>
+        <div id="engine-rankings">
+          <canvas id="rankings-chart">
+
+          </canvas> 
+        </div>
+    </div>
+    <div class="one-half column">
+        <h5>Weighted Rankings</h5>
+        <div id="weighted-engine-rankings">
+        </div>
+    </div>
+  </div>
+</div>

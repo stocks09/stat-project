@@ -37,27 +37,12 @@ statMysqlServer: {
 }
 
 
-# Database Setup
+## Database Setup
  
-## Create DB Schema
-CREATE SCHEMA `statProjectDB` ;
+### Run SQL Script 'statProjectDB_rankings.sql' against MySQL to create database and 'rankings' table
+statProjectDB_rankings.sql is located under stat-project/data/dbschema/
 
-## Create DB Table 
-
-CREATE TABLE Rankings (
-	id INT NOT NULL AUTO_INCREMENT,
-	rdate DATE,
-	site VARCHAR(20),
-	keywords VARCHAR(20),
-	google VARCHAR(20),
-	google_base_rank  INT,
-	yahoo INT,
-	bing INT,
-	global_monthly_searches INT,
-	PRIMARY KEY (id)
-)
  
-
 
 ## Start NodeJS Server
 cmd>sails lift

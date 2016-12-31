@@ -36,7 +36,7 @@ module.exports = {
 				.exec(function (err, record){
 					if (err) {  
 				  		console.error("Error occurred while loading record to data store.", err);
-				  	}   
+				  	}    
 				});
 
 			})
@@ -45,9 +45,7 @@ module.exports = {
 					"csvLoadedMsg": "CSV data loaded in datastore."
 				}); // Keep the current view
 			});
-
 		})
-
 	},
 	findRankingsForDates: function(req, res){
 

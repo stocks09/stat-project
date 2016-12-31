@@ -36,7 +36,7 @@
   "main": "app.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/partizan/stoyanks.git"
+    "url": "git://github.com/stocks09/stat-project.git"
   },
   "author": "partizan",
   "license": "",

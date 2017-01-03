@@ -1,11 +1,22 @@
-# Stat Test Project Setup 
+# Stat Test Project Instructions 
 
 ## Techstack Used
 1. Sails
 2. Skeleton (Responsive Grid Layout) - http://getskeleton.com/
 3. NodeJS with Npm 
+4. EJS 
+5. ChartJS
 
-## Install NodeJS 
+## Install NodeJS and NPM (Node Package Manager)
+
+### Download NodeJS
+1. Download installer at https://nodejs.org/en/
+2. Run the installer
+3. Follow the prompts
+
+### Test NodeJS & NPM are successfully installed
+cmd>node -v
+cmd>npm -v
 
 
 ## Install sailsjs 
@@ -14,41 +25,40 @@ cmd>sudo npm -g install sails
 
 ### On Windows
 cmd>npm -g install sails
-
-### Install grunt-cli
-cmd>npm install -g grunt-cli
+ 
 
 ### Install all modules dependancy for this project
 cmd>npm install
 
 
-
 ## Connection to MySQL
 
-Please provide MySQL connection information in under project /config/connections.js 
+Please replace default MySQL connection information in the connections.js found under project /config/ 
 
- 
-statMysqlServer: {
+
+statMysqlServer: 
+{
      adapter: 'sails-mysql',
-     host: 'localhost',
+     host: 'YOUR_HOST_NAME',
      user: 'stat_user',  
-     password: 'statpass',  
+     password: 'PASSWORD',  
      database: 'statProjectDB'  
 }
 
 
 ## Database Setup
  
-### Run SQL Script 'statProjectDB_rankings.sql' against MySQL to create database and 'rankings' table
-statProjectDB_rankings.sql is located under stat-project/data/dbschema/
+### Please run SQL Script 'statProjectDB_rankings.sql' against MySQL to create 'statProjectDB' database and 'rankings' table.
+
+####statProjectDB_rankings.sql is located under stat-project/data/dbschema/
 
  
-
 ## Start NodeJS Server
 cmd>sails lift
 
 ## Go to Visualization page
 URL http://localhost:1337
+
  
 
 

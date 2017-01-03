@@ -1,49 +1,113 @@
 
-<script>
-(function(data){
-  
-  document.addEventListener("DOMContentLoaded", function(event) { 
-       
-      buildRankingsChart();
 
-  });
+<!-- NOTE: Normally, this JS block will be in a separate .js file to achieve a clearer separation of concerns between view and logic  -->
+<script type="text/javascript">
 
-  function buildRankingsChart(){
+  (function(data){
+    
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        // On DOM Ready build chart. 
+        buildRankingsChart();
 
-    <% if(typeof rankingsData == 'object') { %>
-        lineChartData = {};  
-        lineChartData.labels = []; // 'labels' element to object (X axis)
-        lineChartData.datasets = []; // 'datasets' array element to object
+    });
 
-        for (line = 0; line < 4; line++) {
-            y = [];
-            lineChartData.datasets.push({}); //create a new line dataset
-            dataset = lineChartData.datasets[line]
-            dataset.fillColor = "rgba(0,0,0,0)";
-            dataset.strokeColor = "rgba(200,200,200,1)";
-            dataset.data = []; //contains the 'Y; axis data
+    function buildRankingsChart(){
 
+      <% if(typeof rankingsData == 'object') { %>
 
-            <% _.each(rankingsData, function (ranking) { %>
+        // Give search engine ranking color
+        var googleColorPref = "34, 16, 100"; 
+        var googleBaseColorPref = "51, 10, 198";
+        var yahooColorPref = "198, 10, 63";
+        var bingColorPref = "157, 118, 21"; 
 
-           
+        // Create the Chart data object.
+        var lineChartData = {
+            labels: [],
+            datasets: [
+                {
+                    label: "Google",
+                    fillColor: "rgba("+googleColorPref+",0.2)",
+                    strokeColor: "rgba("+googleColorPref+",1)",
+                    pointColor: "rgba("+googleColorPref+",1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba("+googleColorPref+",1)",
+                    data: []
+                },
+                {
+                    label: "Google Base",
+                    fillColor: "rgba("+googleBaseColorPref+",0.2)",
+                    strokeColor: "rgba("+googleBaseColorPref+",1)",
+                    pointColor: "rgba("+googleBaseColorPref+",1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba("+googleBaseColorPref+",1)",
+                    data: []
+                },
+                {
+                    label: "Yahoo",
+                    fillColor: "rgba("+yahooColorPref+",0.2)",
+                    strokeColor: "rgba("+yahooColorPref+",1)",
+                    pointColor: "rgba("+yahooColorPref+",1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba("+yahooColorPref+",1)",
+                    data: []
+                },
+                {
+                    label: "Bing",
+                    fillColor: "rgba("+bingColorPref+",0.2)",
+                    strokeColor: "rgba("+bingColorPref+",1)",
+                    pointColor: "rgba("+bingColorPref+",1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba("+bingColorPref+",1)",
+                    data: []
+                }
+            ]
+        };
+   
+        // Arrays to store the ranking data 
+        var lineGoogle = [];
+        var lineGoogleBase = [];
+        var lineYahoo = [];
+        var lineBing = []; 
 
-            <% }) %>
+        // Populate the ranking datasets for each search egnine 
+        <% _.each(rankingsData, function (ranking) { %>
+
+            var rankGoogle = <%= ranking.rank_google %>;
+            var rankGoogleBase = <%= ranking.rank_google_base %>;
+            var rankYahoo = <%= ranking.rank_yahoo %>;
+            var rankBing = <%= ranking.rank_bing %>;
+        
+            // Push ranking data for each search engine 
+            lineGoogle.push(rankGoogle); 
+            lineGoogleBase.push(rankGoogleBase); 
+            lineYahoo.push(rankYahoo); 
+            lineBing.push(rankBing); 
+
+            // Add ranking date as the x axis Label for chart
+            var rankDate = "<%= ranking.rank_date %>";
+            lineChartData.labels.push(rankDate);  
+            
+        <% }) %>
       
-            for (x = 0; x < 10; x++) {
-                y.push(line + x);  
-                if (line === 0)
-                    lineChartData.labels.push(x);  
-            }  
+        lineChartData.datasets[0].data = lineGoogle; 
+        lineChartData.datasets[1].data = lineGoogleBase;  
+        lineChartData.datasets[2].data = lineYahoo;  
+        lineChartData.datasets[3].data = lineBing;   
+   
+        var ctx = document.getElementById("rankings-chart").getContext("2d");
+        var rankingsChart = new Chart(ctx , {
+          type: "line",
+          data: lineChartData, 
+        }); 
 
-            lineChartData.datasets[line].data = y;  
-        }  
-
-        ctx = document.getElementById("rankings-chart").getContext("2d");
-        myLineChart = new Chart(ctx).Line(lineChartData);
+      <% } %>
     }
-  <% } %>
-})();
+  })();
 
 </script>
 
@@ -93,18 +157,27 @@
     </div>
   </form>
   <div class="row">
+      <div class="twelve columns">
+          <h5>Rankings</h5>
+          <div class="loader-img"></div>
+          <div id="engine-rankings">
+            <canvas id="rankings-chart">
+              <!-- Placeholder container for the Ranking chart to be injected -->
+            </canvas> 
+          </div>
+      </div>
 
-    <div class="one-half column">
-        <h5>Rankings</h5>
-        <div id="engine-rankings">
-          <canvas id="rankings-chart">
-
-          </canvas> 
-        </div>
-    </div>
-    <div class="one-half column">
+  </div>
+  <div class="row">
+      <div class="twelve columns"> 
         <h5>Weighted Rankings</h5>
         <div id="weighted-engine-rankings">
+          <!-- NOTE: 
+            Chart for Weighted Rankings is not created due to time limitations.
+            However, the data is being generated in the RankingsController.js and passed to the homepage.ejs view. 
+
+            Please refer to the command prompt output for 
+          -->  
         </div>
     </div>
   </div>

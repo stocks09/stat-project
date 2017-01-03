@@ -1,11 +1,17 @@
 /**
  * RankingsController
  *
- * @description :: Processes search engine data.
+ * @description :: Processes search engine data for given dates. 
  */
 
 module.exports = {
 	
+	/**
+	 * Read CSV file and create records in target data source (i.e. MySQL database). 
+	 * 
+	 * @param  req The Request object
+	 * @param  res The Response object 
+	 */
 	upload: function(req, res){
 		req.file('uploadStatData').upload({
 			dirname: require('path').resolve(sails.config.appPath, 'data/csv') // save CSV files to /data/csv
@@ -47,11 +53,17 @@ module.exports = {
 			});
 		})
 	},
+	/**
+	 * For a given date range, it fetches search engine rankings data. 
+	 * @param  req The Request object
+	 * @param  res The Response object 
+	 */
 	findRankingsForDates: function(req, res){
 
 		var fromDate = req.param('fromDate');
 		var toDate = req.param('toDate');
 
+		// Control the flow of execution and minimize callback hell with the use of Promises. 
 		var Promise = require('bluebird');
 		var rankQueryAsync = Promise.promisify(Rankings.query);
 		var weightedAllRankQueryAsync = Promise.promisify(Rankings.query);
@@ -70,7 +82,6 @@ module.exports = {
 			"google AS rank_google, google_base_rank AS rank_google_base, global_monthly_searches, " + 
 			"yahoo AS rank_yahoo, bing AS rank_bing " + 
 			"FROM rankings WHERE rdate > ? AND rdate < ?"; 
-
 		var qryMaxMonthlySearches = 
 			"SELECT DATE_FORMAT(rdate, \'%Y-%m-%d\') AS monthly_date, MAX(global_monthly_searches) AS global_monthly " + 
 			"FROM rankings " + 
@@ -90,6 +101,7 @@ module.exports = {
 			return maxMonthlyData;
 		});
 
+		// When all the data is fetched from database, calculate the weighted rankings.  
 		Promise.all([p1, p2, p3]).then(function(results){
 			 
 			var rankingsData = results[0]; 
@@ -97,15 +109,18 @@ module.exports = {
 			var maxMonthlyRankingData = results[2];
 			var calculatedWeightedRankings = module.exports.calcWeightedRankings(allRankingData, maxMonthlyRankingData); 
 
-			return res.view('homepage', {
-				 "message": 'Date range successfully returned rows!',
-				 "rankingsData": rankingsData,
-				 "weightedRankings": calculatedWeightedRankings
+			return res.view('homepage', { 
+				 "rankingsData": rankingsData, 
+				 "weightedRankings": calculatedWeightedRankings  
 			});
 		}); 
-		
 	},
  
+ 	/**
+ 	 * Calculates the weighted rankings over an arbitrary date range. 
+ 	 * @param  allRankingData        The monthly searches ranking data for a given date range. 
+ 	 * @param  maxMonthlyRankingData The max monthly ranking data. 
+ 	 */
 	calcWeightedRankings: function(allRankingData, maxMonthlyRankingData) {
 
 		var cachedMaxMonthly = module.exports.cacheMaxMonthlyRankings(maxMonthlyRankingData);
@@ -123,16 +138,29 @@ module.exports = {
 
 		console.info('CALCULATED WEIGHTED RANKING FOR RECORDS', allRankingData);
 	},  
+	/**
+	 * Uses the FORUMULA => (Rank for the search engine x (Global Monthly Searches / Max Global Monthly Searches)) 
+	 * to calculate weighted rankings for an arbitrary date range. 
+	 * @param  date        				The ranking date           
+	 * @param  searchEngineRanking   	One of the search engines (Google, Google Base, Yahoo, Bing)
+	 * @param  globalMonthlySearches 	The global monthly searches
+	 * @param  cachedMaxMonthly      	The cached array with max global monthly searches 
+	 */
 	calcWeightedRankingForRow: function(date, searchEngineRanking, globalMonthlySearches, cachedMaxMonthly){
-		// FORUMULA => (Rank for the search engine x (Global Monthly Searches / Max Global Monthly Searches))
+
 		return (parseFloat(searchEngineRanking) * (parseFloat(globalMonthlySearches)/parseFloat(cachedMaxMonthly[date])));
 	},
+	/**
+	 * Creates an cross-reference array for the max global monthly searches that will be used to calculate 
+	 * the weighted rankings for earch engines. 
+	 * @param  maxMonthlyRankingData 	The max monthly ranking data that is processed to create objects with date as the name and the global monthly as the value i.e. {'2016-06-12': 3600}. 
+	 */
 	cacheMaxMonthlyRankings: function(maxMonthlyRankingData){
 		var cachedMaxMonthly = {};
 
 		for(var i = 0; i < maxMonthlyRankingData.length; i++){
 			var maxMonthlyRank = maxMonthlyRankingData[i];
-			// Use the date as the object properties for faster access to corresponding value for monthly max ranking. 
+			// Use the date as the object name for faster access to corresponding value for monthly max ranking. 
 			cachedMaxMonthly[maxMonthlyRank.monthly_date] = maxMonthlyRank.global_monthly; 		 
 		}
 		return cachedMaxMonthly;

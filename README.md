@@ -47,10 +47,11 @@ statMysqlServer:
 
 
 ## Database Setup
- 
-### Please run SQL Script 'statProjectDB_rankings.sql' against MySQL to create 'statProjectDB' database and 'rankings' table.
 
-####statProjectDB_rankings.sql is located under stat-project/data/dbschema/
+### SQL Dump
+Please run SQL Script 'statProjectDB_rankings.sql' against MySQL to create 'statProjectDB' database and 'rankings' table.
+
+statProjectDB_rankings.sql is located under stat-project/data/dbschema/
 
  
 ## Start NodeJS Server
